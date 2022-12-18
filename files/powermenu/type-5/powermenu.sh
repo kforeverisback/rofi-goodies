@@ -11,12 +11,12 @@
 
 # Current Theme
 dir="$HOME/.config/rofi/powermenu/type-5"
-theme='style-1'
+[ -z "$theme" ] && theme='style-1'
 
 # CMDs
-lastlogin="`last $USER | head -n1 | tr -s ' ' | cut -d' ' -f5,6,7`"
-uptime="`uptime -p | sed -e 's/up //g'`"
-host=`hostname`
+lastlogin="$(last $USER | head -n1 | tr -s ' ' | cut -d' ' -f5,6,7)"
+uptime="$(uptime -p | sed -e 's/up //g')"
+host="$(hostname)"
 
 # Options
 hibernate=''
@@ -64,15 +64,15 @@ run_cmd() {
 	selected="$(confirm_exit)"
 	if [[ "$selected" == "$yes" ]]; then
 		if [[ $1 == '--shutdown' ]]; then
-			systemctl poweroff
+			echo systemctl poweroff
 		elif [[ $1 == '--reboot' ]]; then
-			systemctl reboot
+			echo systemctl reboot
 		elif [[ $1 == '--hibernate' ]]; then
-			systemctl hibernate
+			echo systemctl hibernate
 		elif [[ $1 == '--suspend' ]]; then
 			mpc -q pause
 			amixer set Master mute
-			systemctl suspend
+			echo systemctl suspend
 		elif [[ $1 == '--logout' ]]; then
 			if [[ "$DESKTOP_SESSION" == 'openbox' ]]; then
 				openbox --exit
@@ -92,26 +92,26 @@ run_cmd() {
 # Actions
 chosen="$(run_rofi)"
 case ${chosen} in
-    $shutdown)
+    "$shutdown")
 		run_cmd --shutdown
         ;;
-    $reboot)
+    "$reboot")
 		run_cmd --reboot
         ;;
-    $hibernate)
+    "$hibernate")
 		run_cmd --hibernate
         ;;
-    $lock)
+    "$lock")
 		if [[ -x '/usr/bin/betterlockscreen' ]]; then
 			betterlockscreen -l
 		elif [[ -x '/usr/bin/i3lock' ]]; then
 			i3lock
 		fi
         ;;
-    $suspend)
+    "$suspend")
 		run_cmd --suspend
         ;;
-    $logout)
+    "$logout")
 		run_cmd --logout
         ;;
 esac

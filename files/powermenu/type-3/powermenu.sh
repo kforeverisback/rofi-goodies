@@ -11,13 +11,14 @@
 
 # Current Theme
 dir="$HOME/.config/rofi/powermenu/type-3"
-theme='style-1'
+[ -z "$theme" ] && theme='style-1'
 
 # CMDs
-uptime="`uptime -p | sed -e 's/up //g'`"
-host=`hostname`
+uptime="$(uptime -p | sed -e 's/up //g')"
+# host="$(hostname)"
 
 # Options
+hibernate=''
 shutdown=''
 reboot=''
 lock=''
@@ -31,7 +32,7 @@ rofi_cmd() {
 	rofi -dmenu \
 		-p "Uptime: $uptime" \
 		-mesg "Uptime: $uptime" \
-		-theme ${dir}/${theme}.rasi
+		-theme "${dir}/${theme}.rasi"
 }
 
 # Confirmation CMD
@@ -39,7 +40,7 @@ confirm_cmd() {
 	rofi -dmenu \
 		-p 'Confirmation' \
 		-mesg 'Are you Sure?' \
-		-theme ${dir}/shared/confirm.rasi
+		-theme "${dir}/shared/confirm.rasi"
 }
 
 # Ask for confirmation
@@ -49,7 +50,7 @@ confirm_exit() {
 
 # Pass variables to rofi dmenu
 run_rofi() {
-	echo -e "$lock\n$suspend\n$logout\n$reboot\n$shutdown" | rofi_cmd
+	echo -e "$lock\n$suspend\n$hibernate\n$logout\n$reboot\n$shutdown" | rofi_cmd
 }
 
 # Execute Command
@@ -57,13 +58,15 @@ run_cmd() {
 	selected="$(confirm_exit)"
 	if [[ "$selected" == "$yes" ]]; then
 		if [[ $1 == '--shutdown' ]]; then
-			systemctl poweroff
+			echo systemctl poweroff
 		elif [[ $1 == '--reboot' ]]; then
-			systemctl reboot
+			echo systemctl reboot
+		elif [[ $1 == '--hibernate' ]]; then
+			echo systemctl hibernate
 		elif [[ $1 == '--suspend' ]]; then
 			mpc -q pause
 			amixer set Master mute
-			systemctl suspend
+			echo systemctl suspend
 		elif [[ $1 == '--logout' ]]; then
 			if [[ "$DESKTOP_SESSION" == 'openbox' ]]; then
 				openbox --exit
@@ -83,23 +86,26 @@ run_cmd() {
 # Actions
 chosen="$(run_rofi)"
 case ${chosen} in
-    $shutdown)
+    "$shutdown")
 		run_cmd --shutdown
         ;;
-    $reboot)
+    "$reboot")
 		run_cmd --reboot
         ;;
-    $lock)
+	"$hibernate")
+		run_cmd --hibernate
+        ;;
+    "$lock")
 		if [[ -x '/usr/bin/betterlockscreen' ]]; then
 			betterlockscreen -l
 		elif [[ -x '/usr/bin/i3lock' ]]; then
 			i3lock
 		fi
         ;;
-    $suspend)
+    "$suspend")
 		run_cmd --suspend
         ;;
-    $logout)
+    "$logout")
 		run_cmd --logout
         ;;
 esac
