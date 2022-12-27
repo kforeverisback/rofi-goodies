@@ -58,15 +58,15 @@ run_cmd() {
 	selected="$(confirm_exit)"
 	if [[ "$selected" == "$yes" ]]; then
 		if [[ $1 == '--shutdown' ]]; then
-			echo systemctl poweroff
+			systemctl poweroff
 		elif [[ $1 == '--reboot' ]]; then
-			echo systemctl reboot
+			systemctl reboot
 		elif [[ $1 == '--hibernate' ]]; then
-			echo systemctl hibernate
+			systemctl hibernate
 		elif [[ $1 == '--suspend' ]]; then
 			mpc -q pause
 			amixer set Master mute
-			echo systemctl suspend
+			systemctl suspend
 		elif [[ $1 == '--logout' ]]; then
 			if [[ "$DESKTOP_SESSION" == 'openbox' ]]; then
 				openbox --exit
